@@ -31,23 +31,10 @@
 ***********************************************************
 * Startup code
 
-            org         $402
+            org         $404
 
-start       ldd         $400                    * get # of Pi digits to print
-            muld        #27213                  * multiply by 2^13 / log10(2)
-            cmpd        #$FB0                   * FB00 / 16
-            blo         RamOK
-            rts
-RamOK
-            rolw
-            rold
-            rolw
-            rold                                
-            rolw
-            rold                                
-            addd        #1                      * now D contains number of state words needed (variable L in BASIC code)
-            tfr         d,u                     * store L in register U
-            orcc        #$50                    * disable interrupts
+start       orcc        #$50                    * disable interrupts
+            ldmd        #1                      * put 6309 into enhanced mode
             ldx         #$0000                  * clear memory where screen will be placed at $0000
             lda         #$60
             clrb
@@ -77,6 +64,7 @@ loop1
             lds         #$400                   * set top of stack to $400
             
             ldd         ,s                      * D = number of digits to print
+            ldu         2,s                     * U = number of 16-bit numeric state entries to use
 
             jmp         CalcPi                  * start the program
 
