@@ -128,9 +128,19 @@ TermLoop
             std         <TempX+1
             * calculate Q * I and add it to TempX
             tfr         y,d
-            muld        <LastDigit
-            addw        <TempX+2
-            adcd        <TempX                  * X = 10*A(I) + Q*I
+            lda         <LastDigit+1
+            mul
+            addd        <TempX+2
+            std         <TempX+2
+            bcc         >
+            inc         <TempX+1
+!           tfr         y,d
+            ldb         <LastDigit+1
+            mul
+            addd        <TempX+1
+            std         <TempX+1
+            * divide this by K
+            ldq         <TempX
             divq        <Divisor
             stw         <LastDigit              * Q=INT(X/K)
             std         ,x                      * A(I) = X-Q*K
@@ -138,10 +148,10 @@ TermLoop
             leay        -1,y
             bne         TermLoop
             ldd         <LastDigit
-            divd        #10
-            sta         3,x                     * A(1) = Q-10*Y
-            stb         <LastDigit+1            * Q=Y
-            cmpb        #9
+            bsr         Math_DivideDby10
+            sta         <LastDigit+1            * Q=Y
+            stb         3,x                     * A(1) = Q-10*Y
+            cmpa        #9
             bne         NotNine
             inc         <NumZeros
 DigitLoopEnd
@@ -154,7 +164,7 @@ DigitLoopEnd
             bsr         PrintDigit
             bra         Infinite
 NotNine
-            cmpb        #10
+            cmpa        #10
             bne         NotTen
             lda         <NextDigit
             adda        #$71
@@ -211,6 +221,41 @@ ScrollLoop2
             cmpu        #$200
             bne         ScrollLoop2
             rts
-            
+
+***********************************************************
+* Math_DivideDby10:
+*
+* This routine divides a 16-bit unsigned integer by 10,
+* producing an 8-bit quotient and an 8-bit remainder.
+*
+* - IN:      D=Dividend
+* - OUT:     A=Quotient, B=Remainder
+***********************************************************
+
+Math_DivideDby10:
+            pshs        x,y
+            ldx         #16                     * 3
+            ldy         #0                      * 4 (clear remainder)
+DivLoop@
+            rolb                                * 2
+            eorb        #1                      * 2
+            rola                                * 2
+            exg         d,y                     * 8
+            rolb
+            rola                                * 2
+            subd        #10                     * 5
+            bcc         DivLoop_NoBorrow@       * 3
+            addd        #10                     * 5
+DivLoop_NoBorrow@
+            exg         d,y                     * 8
+            leax        -1,x                    * 5
+            bne         DivLoop@                * 3
+            rolb                                * 2
+            eorb        #1                      * 2
+            tfr         b,a                     *
+            tfr         y,b                     * 
+            puls        x,y
+            rts                                 * 5
+
 ProgEndAddress          EQU     *
 
