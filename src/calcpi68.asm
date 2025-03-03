@@ -53,9 +53,13 @@ loop1
             sta         $13,x                   * high-speed poke
             
             ldx         #ProgStartAddress       * copy main program to RAM starting at 0200
-            ldy         #$0200
-            ldw         #ProgEndAddress-$200+1
-            tfm         x+,y+
+            ldu         #$0200
+            ldy         #ProgEndAddress-$200+1
+loop2
+            lda         ,x+
+            sta         ,u+
+            leay        -1,y
+            bne         loop2
             
             lda         #2                      * set DP to $02 page
             tfr         a,dp
@@ -97,7 +101,8 @@ Init_L1                                         * initialize value of all terms 
             bne         Init_L1
 DigitLoop
             ldd         <NumTerms
-            lsld
+            lslb
+            rola
             addd        #1                      * K = 2*L + 1
             std         <Divisor
             clr         <LastDigit              * Q = 0
@@ -109,9 +114,19 @@ TermLoop
             ldd         <Divisor
             subd        #2
             std         <Divisor                * K = K - 2
-            ldd         ,x
-            muld        #10
-            stq         <TempX
+            * calculate 10 * A(I) and put into TempX
+            clr         <TempX
+            clr         <TempX+1
+            lda         1,x
+            ldb         #10
+            mul
+            std         <TempX+2
+            lda         ,x
+            ldb         #10
+            mul
+            addd        <TempX+1
+            std         <TempX+1
+            * calculate Q * I and add it to TempX
             tfr         y,d
             muld        <LastDigit
             addw        <TempX+2
