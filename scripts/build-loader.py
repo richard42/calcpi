@@ -44,10 +44,10 @@ def GenerateLoader(loaderin, loaderout):
     outLines = [ ]
     progsize = len(inBytes)
     for idx in range(progsize):
-        if idx % 6 == 0:
-            outLines.append("%3d" % inBytes[idx])
+        if idx % 16 == 0:
+            outLines.append("%d" % inBytes[idx])
         else:
-            outLines[idx//6] += ",%3d" % inBytes[idx]
+            outLines[idx//16] += ",%d" % inBytes[idx]
     # write the output basic program
     f = open(loaderout, "w")
     f.write(chr(13))
