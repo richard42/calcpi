@@ -23,24 +23,26 @@ $(shell mkdir -p $(GENLISTDIR))
 $(shell mkdir -p $(GENDISKDIR))
 
 # assembly source files
-LOADERSRC = $(addprefix $(SRCDIR)/, calcpi.asm )
+LOADER63SRC = $(addprefix $(SRCDIR)/, calcpi63.asm)
+LOADER68SRC = $(addprefix $(SRCDIR)/, calcpi68.asm)
 
 # files to be added to Coco3 disk image
 READMEBAS = $(GENDISKDIR)/README.BAS
-LOADERBIN = $(GENOBJDIR)/CALCPI.BIN
-LOADERBAS = $(GENDISKDIR)/CALCPI.BAS
-DISKFILES = $(READMEBAS) $(LOADERBAS)
+LOADER63BIN = $(GENOBJDIR)/CALCPI63.BIN
+LOADER63BAS = $(GENDISKDIR)/CALCPI63.BAS
+LOADER68BIN = $(GENOBJDIR)/CALCPI68.BIN
+LOADER68BAS = $(GENDISKDIR)/CALCPI68.BAS
+DISKFILES = $(READMEBAS) $(LOADER63BAS) $(LOADER68BAS)
 
 # core assembler pass outputs
-ASM_LIST = $(GENLISTDIR)/calcpi.lst
+ASM63_LIST = $(GENLISTDIR)/calcpi63.lst
+ASM68_LIST = $(GENLISTDIR)/calcpi68.lst
 
 # options
 ifeq ($(CPU),6309)
-  ASMFLAGS += --define=CPU=6309
   MAMESYSTEM = coco3h
 else
   CPU = 6809
-  ASMFLAGS += --define=CPU=6809
   MAMESYSTEM = coco3
 endif
 ifeq ($(MAMEDBG), 1)
@@ -73,16 +75,20 @@ test:
 # build rules
 
 # 0. Build dependencies
-$(COCODISKGEN): $(TOOLDIR)/src/file2dsk/main.c
+$(COCODISKGEN): $(TOOLDIR)/src/file2dsk/main.c $(DISKFILES)
 	gcc -o $@ $<
 
 # 1. Run assembly of Pi Calculator
-$(LOADERBIN): $(LOADERSRC)
-	$(ASSEMBLER) $(ASMFLAGS) -b -I $(GENASMDIR)/ -o $(LOADERBIN) --format=raw --list=$(ASM_LIST) $(SRCDIR)/calcpi.asm
+$(LOADER63BIN): $(LOADER63SRC)
+	$(ASSEMBLER) $(ASMFLAGS) -b -I $(GENASMDIR)/ -o $@ --format=raw --list=$(ASM63_LIST) $<
+$(LOADER68BIN): $(LOADER68SRC)
+	$(ASSEMBLER) $(ASMFLAGS) -b -I $(GENASMDIR)/ -o $@ --format=raw --list=$(ASM68_LIST) $<
 
 # 2. Generate the BASIC program to load the machine language
-$(LOADERBAS): $(LOADERBIN)
-	$(SCRIPTDIR)/build-loader.py $(LOADERBIN) $(LOADERBAS)
+$(LOADER63BAS): $(LOADER63BIN)
+	$(SCRIPTDIR)/build-loader.py $(LOADER63BIN) $(LOADER63BAS)
+$(LOADER68BAS): $(LOADER68BIN)
+	$(SCRIPTDIR)/build-loader.py $(LOADER68BIN) $(LOADER68BAS)
 
 # 3. Generate the README.BAS document
 $(READMEBAS): $(SCRIPTDIR)/build-readme.py $(SRCDIR)/readme-bas.txt
