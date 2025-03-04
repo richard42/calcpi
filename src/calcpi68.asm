@@ -140,9 +140,8 @@ TermLoop
             addd        <TempX+1
             std         <TempX+1
             * divide this by K
-            ldq         <TempX
-            divq        <Divisor
-            stw         <LastDigit              * Q=INT(X/K)
+            jsr         Math_DivideXbyK
+            stu         <LastDigit              * Q=INT(X/K)
             std         ,x                      * A(I) = X-Q*K
             leax        -2,x
             leay        -1,y
@@ -254,6 +253,43 @@ DivLoop_NoBorrow@
             eorb        #1                      * 2
             tfr         b,a                     *
             tfr         y,b                     * 
+            puls        x,y
+            rts                                 * 5
+
+***********************************************************
+* Math_DivideXbyK:
+*
+* This routine divides a 24-bit unsigned integer by an 16-bit unsigned integer,
+* producing a 16-bit quotient and 16-bit remainder.
+*
+* - IN:      TempX=Dividend, Divisor=Divisor
+* - OUT:     U=Quotient, D=Remainder
+***********************************************************
+Math_DivideXbyK:
+            pshs        x,y
+            ldx         #24                     * 3
+            ldy         #0                      * 4 (clear remainder)
+            ldd         <TempX+2                * 6 (lower 16 bits of working quotient)
+DivLoop@
+            rolb                                * 2
+            eorb        #1                      * 2
+            rola                                * 2
+            rol         <TempX+1
+            exg         d,y                     * 8
+            rolb                                * 2
+            rola                                * 2
+            subd        <Divisor                * 7
+            bcc         DivLoop_NoBorrow@       * 3
+            addd        <Divisor                * 7
+DivLoop_NoBorrow@
+            exg         d,y                     * 8
+            leax        -1,x                    * 5
+            bne         DivLoop@                * 3
+            rolb                                * 2
+            eorb        #1                      * 2
+            rola                                * 2
+            tfr         d,u
+            tfr         y,d                     * 8
             puls        x,y
             rts                                 * 5
 
