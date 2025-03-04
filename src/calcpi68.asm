@@ -263,8 +263,11 @@ DivLoop_NoBorrow@
 * - IN:      TempX=Dividend, Divisor=Divisor
 * - OUT:     D=Quotient, U=Remainder
 ***********************************************************
+*
+* Timing = 19 + 24*(57) + 18 = 1405 clock cycles
+*
 Math_DivideXbyK:
-            pshs        x
+            pshs        x                       * 7
             ldx         #24                     * 3
             ldu         #0                      * 3 (clear remainder)
             ldd         <TempX+2                * 6 (lower 16 bits of working quotient)
@@ -272,7 +275,7 @@ DivLoop@
             rolb                                * 2
             eorb        #1                      * 2
             rola                                * 2
-            rol         <TempX+1
+            rol         <TempX+1                * 6
             exg         d,u                     * 8
             rolb                                * 2
             rola                                * 2
@@ -286,7 +289,7 @@ DivLoop_NoBorrow@
             rolb                                * 2
             eorb        #1                      * 2
             rola                                * 2
-            puls        x
+            puls        x                       * 7
             rts                                 * 5
 
 ProgEndAddress          EQU     *
