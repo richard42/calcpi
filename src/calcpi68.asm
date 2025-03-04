@@ -264,10 +264,13 @@ DivLoop_NoBorrow@
 * - OUT:     D=Quotient, U=Remainder
 ***********************************************************
 *
-* Timing = 13 + 24*(45) + 32 = 1125 clock cycles
+* Timing = 30 + 24*(41) + 32 = 1046 clock cycles
 *
 Math_DivideXbyK:
             pshs        x                       * 7
+            ldx         <Divisor                * 5
+            stx         SubDivisor@+1           * 6
+            stx         AddDivisor@+1           * 6
             ldx         #24                     * 3
             ldd         #0                      * 3 (clear remainder)
 DivLoop@
@@ -276,9 +279,11 @@ DivLoop@
             rol         <TempX+1                * 6
             rolb                                * 2
             rola                                * 2
-            subd        <Divisor                * 6
+SubDivisor@
+            subd        #0                      * 4  SMC: divisor is written by code above
             bcc         DivLoop_NoBorrow@       * 3
-            addd        <Divisor                * 6
+AddDivisor@
+            addd        #0                      * 4  SMC: divisor is written by code above
 DivLoop_NoBorrow@
             leax        -1,x                    * 5
             bne         DivLoop@                * 3
