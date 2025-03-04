@@ -82,7 +82,7 @@ $(COCODISKGEN): $(TOOLDIR)/src/file2dsk/main.c $(DISKFILES)
 $(LOADER63BIN): $(LOADER63SRC)
 	$(ASSEMBLER) $(ASMFLAGS) -b -I $(GENASMDIR)/ -o $@ --format=raw --list=$(ASM63_LIST) $<
 $(LOADER68BIN): $(LOADER68SRC)
-	$(ASSEMBLER) $(ASMFLAGS) -b -I $(GENASMDIR)/ -o $@ --format=raw --list=$(ASM68_LIST) $<
+	$(ASSEMBLER) $(ASMFLAGS) -9 -b -I $(GENASMDIR)/ -o $@ --format=raw --list=$(ASM68_LIST) $<
 
 # 2. Generate the BASIC program to load the machine language
 $(LOADER63BAS): $(LOADER63BIN)

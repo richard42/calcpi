@@ -54,7 +54,7 @@ loop1
             
             ldx         #ProgStartAddress       * copy main program to RAM starting at 0200
             ldu         #$0200
-            ldy         #ProgEndAddress-$200+1
+            ldy         #ProgEndAddress-$200
 loop2
             lda         ,x+
             sta         ,u+
@@ -148,9 +148,9 @@ TermLoop
             bne         TermLoop
             ldd         <LastDigit
             bsr         Math_DivideDby10
-            sta         <LastDigit+1            * Q=Y
-            stb         3,x                     * A(1) = Q-10*Y
-            cmpa        #9
+            stb         <LastDigit+1            * Q=Y
+            stu         2,x                     * A(1) = Q-10*Y
+            cmpb        #9
             bne         NotNine
             inc         <NumZeros
 DigitLoopEnd
@@ -163,7 +163,7 @@ DigitLoopEnd
             bsr         PrintDigit
             bra         Infinite
 NotNine
-            cmpa        #10
+            cmpb        #10
             bne         NotTen
             lda         <NextDigit
             adda        #$71
@@ -228,32 +228,30 @@ ScrollLoop2
 * producing an 8-bit quotient and an 8-bit remainder.
 *
 * - IN:      D=Dividend
-* - OUT:     A=Quotient, B=Remainder
+* - OUT:     B=Quotient, U=Remainder
 ***********************************************************
 
 Math_DivideDby10:
-            pshs        x,y
+            pshs        x
             ldx         #16                     * 3
-            ldy         #0                      * 4 (clear remainder)
+            ldu         #0                      * 3 (clear remainder)
 DivLoop@
             rolb                                * 2
             eorb        #1                      * 2
             rola                                * 2
-            exg         d,y                     * 8
+            exg         d,u                     * 8
             rolb
             rola                                * 2
             subd        #10                     * 5
             bcc         DivLoop_NoBorrow@       * 3
             addd        #10                     * 5
 DivLoop_NoBorrow@
-            exg         d,y                     * 8
+            exg         d,u                     * 8
             leax        -1,x                    * 5
             bne         DivLoop@                * 3
             rolb                                * 2
             eorb        #1                      * 2
-            tfr         b,a                     *
-            tfr         y,b                     * 
-            puls        x,y
+            puls        x
             rts                                 * 5
 
 ***********************************************************
