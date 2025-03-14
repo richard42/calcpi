@@ -264,10 +264,10 @@ DivLoop_NoBorrow@
 * - OUT:     D=Quotient, U=Remainder
 ***********************************************************
 *
-* Timing = 30 + 24*(41) + 32 = 1046 clock cycles
+* Timing = 29 + 24*(41) + 28 = 1041 clock cycles
 *
 Math_DivideXbyK:
-            pshs        x                       * 7
+            stx         @oldx+1                 * 6
             ldx         <Divisor                * 5
             stx         SubDivisor@+1           * 6
             stx         AddDivisor@+1           * 6
@@ -293,7 +293,7 @@ DivLoop_NoBorrow@
             rola                                * 2
             comb                                * 2
             coma                                * 2
-            puls        x                       * 7
+@oldx       ldx         #0000                   * 3  SMC: original X value is written by code above
             rts                                 * 5
 
 ProgEndAddress          EQU     *
