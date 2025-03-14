@@ -291,8 +291,8 @@ DivLoop_NoBorrow@
             ldd         <TempX+2                * 6 (lower 16 bits of working quotient)
             rolb                                * 2
             rola                                * 2
-            eorb        #255                    * 2
-            eora        #255                    * 2
+            comb                                * 2
+            coma                                * 2
             puls        x                       * 7
             rts                                 * 5
 
