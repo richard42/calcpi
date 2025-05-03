@@ -279,6 +279,10 @@ DivLoop@
             rol         <TempX+1                * 6
             rolb                                * 2
             rola                                * 2
+            bcc         SubDivisor@             * 3
+            subd        <Divisor                * 6
+            andcc       #$FE                    * 3 (clear carry flag)
+            bra         DivLoop_NoBorrow@       * 3
 SubDivisor@
             subd        #0                      * 4  SMC: divisor is written by code above
             bcc         DivLoop_NoBorrow@       * 3
