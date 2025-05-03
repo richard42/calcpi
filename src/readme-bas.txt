@@ -10,6 +10,6 @@ March 1, 2025
 Richard@fascinationsoftware.com
 github.com/richard42/calcpi
 
-This is an assembly language program to calculate the mathematical constant Pi to an arbitrary precision. A 6309 CPU is currently required.
+This is an assembly language program to calculate the mathematical constant Pi to an arbitrary precision.
 
 {-}<end>
